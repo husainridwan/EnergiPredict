@@ -1,0 +1,132 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+#fileInput, #uploadBtn {
+    margin: 10px 0;
+}
+
+#fileName {
+    font-style: italic;
+}
+
+#predictionsContainer {
+    margin-top: 20px;
+}
+
+#predictionsTable, #featuresTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#predictionsTable th, #predictionsTable td,
+#featuresTable th, #featuresTable td {
+    padding: 8px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+.pagination {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0;
+}
+
+#uploadBtn {
+    padding: 10px 20px;
+    background-color: #4CAF50; /* Change to match your design */
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    transition-duration: 0.4s;
+}
+
+#uploadBtn:hover {
+    background-color: #45a049; /* Change to match your design */
+    color: white;
+}
+
+
+/* Base styling */
+body.background-dark {
+    background-color: #333;
+    color: #fff;
+}
+
+/* Header and Navigation */
+header.grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    padding: 20px;
+}
+
+nav.background-primary-hightlight {
+    background-color: #52ffff;
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    justify-content: flex-end;
+}
+
+nav ul li {
+    margin-left: 20px;
+}
+
+nav ul li a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+/* Logo */
+.logo img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Content Section */
+section.padding-2x {
+    padding: 40px;
+}
+
+/* Form styling */
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+input[type="file"] {
+    margin: 10px 0;
+}
+
+.button {
+    background-color: #4CAF50; /* Green */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.button:hover {
+    background-color: #45a049;
+}
+
+/* Footer */
+footer.grid {
+    background-color: #222;
+    color: #bbb;
+    padding: 40px;
+    text-align: center;
+}
