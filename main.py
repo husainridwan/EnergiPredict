@@ -1,10 +1,11 @@
-from fastapi import FastAPI, Request, File, UploadFile, FileResponse, HTTPException
-from fastapi.responses import HTMLResponse
+from fastapi import FastAPI, Request, File, UploadFile, HTTPException
+from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
-from joblib import dump, load
-import pickle
+import joblib
+from joblib import dump
 
 app = FastAPI()
 
@@ -17,7 +18,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-templates = Jinja2Templates(directory="templates")
+templates = Jinja2Templates(directory="templates/theme")
 
 @app.get("/")
 async def read_root(request: Request):
@@ -35,7 +36,7 @@ async def upload_and_process_file(request: Request, file: UploadFile = File(...)
     try:
         df = pd.read_csv(file.file, encoding='utf-8')
         # Loading the trained model
-        model = pickle.load("models/stack.pkl")
+        model = joblib.load("models/stack.joblib")
         predictions = model.predict(df)
 
         output_df = pd.DataFrame({
@@ -59,3 +60,5 @@ async def upload_and_process_file(request: Request, file: UploadFile = File(...)
     except Exception as e:
         #logging.critical(e, exc_info=True) 
         raise HTTPException(status_code=500, detail=str(e))
+    
+app.mount("/temp", StaticFiles(directory="templates/theme"), name="templates")

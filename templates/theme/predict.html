@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Basic Page Needs
+  ================================================== -->
+  <meta charset="utf-8">
+  <title>EnergiPredict | Energy Prediction System</title>
+
+  <!-- Mobile Specific Metas
+  ================================================== -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="description" content="Construction Html5 Template">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <meta name="author" content="Themefisher">
+  <meta name="generator" content="Themefisher Constra HTML Template v1.0">
+  
+  <!-- theme meta -->
+  <meta name="theme-name" content="energipredict" />
+  
+  <!-- Favicon -->
+  <link rel="shortcut icon" type="image/x-icon" href="temp/images/favicon.jpg" />
+  
+  <!-- Themefisher Icon font -->
+  <link rel="stylesheet" href="temp/plugins/themefisher-font/style.css">
+  <!-- bootstrap.min css -->
+  <link rel="stylesheet" href="temp/plugins/bootstrap/css/bootstrap.min.css">
+  
+  <!-- Animate css -->
+  <link rel="stylesheet" href="temp/plugins/animate/animate.css">
+  <!-- Slick Carousel -->
+  <link rel="stylesheet" href="temp/plugins/slick/slick.css">
+  <link rel="stylesheet" href="temp/plugins/slick/slick-theme.css">
+  
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="temp/css/style.css">
+
+</head>
+
+<body id="body">
+
+<!-- Start Top Header Bar -->
+<section class="top-header">
+    <div class="container">
+      <div class="row">
+        <div class="logo text-center">
+          <a href="index.html">
+            <!-- replace logo here -->
+            <svg width="135px" height="29px" viewBox="0 0 155 29" version="1.1" xmlns="http://www.w3.org/2000/svg"
+                 xmlns:xlink="http://www.w3.org/1999/xlink">
+              <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" font-size="24"
+                 font-family="AustinBold, Austin" font-weight="bold">
+                <g id="Group" transform="translate(-108.000000, -297.000000)" fill="#000000">
+                  <div><h2><b>EnergiPredict</h2></div>
+                </g>
+              </g>
+            </svg>
+          </a>
+        </div>
+      </div>    
+    </div>
+  </section>	
+
+<!-- Main Menu Section -->
+<nav class="navbar">
+    <div class="container">
+        <ul class="navbar-nav">
+            <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+            <li class="nav-item"><a class="nav-link" href="/predict">Predict</a></li>
+            <li class="nav-item"><a class="nav-link" href="results.html">Results</a></li>
+        </ul>
+    </div>
+</nav>
+
+
+<section class="padding-2x">
+    <h2>Upload CSV</h2>
+    <form action="/predict" method="post" enctype="multipart/form-data">
+        <label for="file">Select file to upload:</label>
+        <input type="file" id="fileInput" name="file" accept=".csv">
+        <input type="submit" value="Upload CSV" class="button">
+    </form>
+    <div id="fileNameDisplay"></div>
+</section>
+
+
+<script>
+    // Global variables
+    let currentPage = 1;
+    const rowsPerPage = 10;
+    let predictionsData = [];
+
+    // Function to display the selected file name
+    function displayFileName() {
+        const fileInput = document.getElementById('fileInput');
+        const fileNameContainer = document.getElementById('fileNameDisplay');
+        if (fileInput.files.length > 0) {
+            fileNameContainer.textContent = "Selected file: " + fileInput.files[0].name;
+        } else {
+            fileNameContainer.textContent = "No file selected";
+        }
+    }
+
+    // Function to upload the file
+    function uploadFile() {
+        const fileInput = document.getElementById('fileInput');
+        const file = fileInput.files[0];
+        if (!file) {
+            alert('Please select a file to upload.');
+            return;
+        }
+        // Validate file type
+        if (file.type !== 'text/csv' && !file.name.endsWith('.csv')) {
+            alert('Please upload a CSV file.');
+            return;
+        }
+        const formData = new FormData();
+        formData.append('file', file);
+
+        fetch('/api/predict', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            predictionsData = data.predictions;
+            if(predictionsData.length > 0) {
+                renderPredictionsTable();
+                document.getElementById('predictionsContainer').style.display = 'block';
+                document.querySelector('.pagination-controls').style.display = 'block';
+                document.getElementById('downloadBtn').disabled = false;
+            } else {
+                alert('No predictions to display.');
+            }
+        })
+        .catch(error => {
+            console.error('Upload failed:', error);
+        });
+    }
+
+    // Function to render predictions table
+    function renderPredictionsTable() {
+        const predictionsTable = document.getElementById('predictionsTableBody');
+        predictionsTable.innerHTML = '';
+
+        const startIndex = (currentPage - 1) * rowsPerPage;
+        const endIndex = startIndex + rowsPerPage;
+
+        predictionsData.slice(startIndex, endIndex).forEach(prediction => {
+            const row = predictionsTable.insertRow();
+            Object.values(prediction).forEach(text => {
+                const cell = row.insertCell();
+                cell.textContent = text;
+            });
+        });
+    }
+
+    // Function to go to previous page
+    function prevPage() {
+        if (currentPage > 1) {
+            currentPage--;
+            renderPredictionsTable();
+        }
+    }
+
+    // Function to go to next page
+    function nextPage() {
+        if (currentPage < Math.ceil(predictionsData.length / rowsPerPage)) {
+            currentPage++;
+            renderPredictionsTable();
+        }
+    }
+
+    // Function to download predictions as CSV
+    function downloadPredictions() {
+        if(predictionsData.length === 0) {
+            alert('No predictions to download.');
+            return;
+        }
+        let csvContent = Object.keys(predictionsData[0]).join(",") + "\n";
+
+        predictionsData.forEach(row => {
+            csvContent += Object.values(row).join(",") + "\n";
+        });
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
+
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'predictions.csv';
+
+        link.click();
+
+        URL.revokeObjectURL(link.href);
+    }
+
+    document.getElementById('downloadBtn').addEventListener('click', downloadPredictions);
+
+    const fileInput = document.getElementById('fileInput');
+    const uploadBtn = document.getElementById('uploadBtn');
+
+    fileInput.addEventListener('change', displayFileName);
+
+    uploadBtn.addEventListener('click', uploadFile);
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const requiredFeatures = [
+            "mels_S", "lig_S", "mels_N", "air_temp_set_1", "relative_humidity_set_1", 
+            "solar_radiation_set_1", "intTemp", "extTemp", "airSpeed", "waterHeat", 
+            "hp_hws_temp", "rtuSat", "rtuRat", "rtuMat", "rtuOat", "rtuFan", "hvac_total"
+        ];
+
+        const featureDescriptions = [
+            "Miscellaneous electric load for the South Wing of the building",
+            "Lighting load for the South Wing",
+            "Miscellaneous electric load for the North Wing of the building",
+            "Outdoor air temperature from sensor 1",
+            "Relative humidity from sensor 1",
+            "Solar radiation from sensor 1",
+            "Zone temperature of interior zone",
+            "Zone temperature of exterior zone",
+            "Supply air fan speed of Zones",
+            "Heating water valve position of Zones",
+            "Heat pump heating water supply temperature",
+            "Roof Top Unit supply air temperature setpoint",
+            "Roof Top Unit return air temperature",
+            "Roof Top Unit mixed air temperature",
+            "Roof Top Unit outdoor air temperature",
+            "Roof Top Unit supply fan speed",
+            "Total HVAC load for the building"
+        ];
+
+        const tableBody = document.querySelector("#featuresTable tbody");
+
+        requiredFeatures.forEach((feature, index) => {
+            const description = featureDescriptions[index];
+            const row = document.createElement("tr");
+            const featureCell = document.createElement("td");
+            featureCell.textContent = feature;
+            const descriptionCell = document.createElement("td");
+            descriptionCell.textContent = description;
+            row.appendChild(featureCell);
+            row.appendChild(descriptionCell);
+            tableBody.appendChild(row);
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Function to update the table with feature descriptions
+        function updateFeatureDescriptions(features) {
+            const tableBody = document.getElementById('featuresTableBody');
+            features.forEach(({feature, description}) => {
+                const row = document.createElement("tr");
+                const featureCell = document.createElement("td");
+                featureCell.textContent = feature;
+                const descriptionCell = document.createElement("td");
+                descriptionCell.textContent = description;
+                row.appendChild(featureCell);
+                row.appendChild(descriptionCell);
+                tableBody.appendChild(row);
+            });
+        }
+    });
+
+    async function validateAndUploadFile(endpoint) {
+        const fileInput = document.getElementById('fileInput');
+        const file = fileInput.files[0];
+        const fileNameDisplay = document.getElementById('fileNameDisplay');
+
+        if (!file) {
+            fileNameDisplay.textContent = 'No file selected.';
+            return;
+        }
+
+        if (file.type !== 'text/csv' && !file.name.endsWith('.csv')) {
+            fileNameDisplay.textContent = 'Please upload a CSV file.';
+            return;
+        }
+
+        fileNameDisplay.textContent = `Uploading ${file.name}...`;
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                fileNameDisplay.textContent = `${file.name} uploaded successfully. Downloading prediction...`;
+                downloadPrediction(result.downloadUrl);
+            } else {
+                fileNameDisplay.textContent = `Failed to upload ${file.name}.`;
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            fileNameDisplay.textContent = `Error uploading file: ${error.message}`;
+        }
+    }
+
+    function downloadPrediction(url) {
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'prediction.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        fileNameDisplay.textContent = 'Prediction downloaded successfully.';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const uploadBtn = document.getElementById('uploadBtn');
+        const fileInput = document.getElementById('fileInput');
+
+        uploadBtn.addEventListener('click', function() {
+            const endpoint = '/api/predict'; // Set this to your actual endpoint
+            validateAndUploadFile(endpoint);
+        });
+
+        // Optional: Update file name display when a file is selected
+        fileInput.addEventListener('change', function() {
+            const fileNameDisplay = document.getElementById('fileName');
+            if (fileInput.files.length > 0) {
+                fileNameDisplay.textContent = fileInput.files[0].name;
+            } else {
+                fileNameDisplay.textContent = 'No file selected.';
+            }
+        });
+    });
+</script>
+
+<footer class="footer section text-center">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <ul class="social-media">
+                    <li>
+                        <a href="mailto:h.ridwan707@gmail.com">
+                            <i class="fa fa-envelope"></i>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.linkedin.com/in/ridwanllah-husain-655458195/">
+                            <i class="tf-ion-social-linkedin"></i>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.github.com/husainridwan">
+                            <i class="tf-ion-social-github"></i>
+                        </a>
+                    </li>
+                </ul>
+                <ul class="footer-menu text-uppercase">
+                    <li>
+                        <a href="contact.html">Gmail</a>
+                    </li>
+                    <li>
+                        <a href="shop.html">LinkedIn</a>
+                    </li>
+                    <li>
+                        <a href="pricing.html">GitHub</a>
+                    </li>
+                    <li>
+                        <a href="contact.html">PRIVACY POLICY</a>
+                    </li>
+                </ul>
+                <p class="copyright-text">Copyright &copy; EnergiPredict, 2023, Designed &amp; Developed by <a href="https://husainridwan.github.io/portfolio/">Husain Ridwan</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- Main jQuery -->
+    <script src="temp/plugins/jquery/dist/jquery.min.js"></script>
+    <!-- Bootstrap 3.1 -->
+    <script src="temp/plugins/bootstrap/js/bootstrap.min.js"></script>
+    <!-- Bootstrap Touchpin -->
+    <script src="temp/plugins/bootstrap-touchspin/dist/jquery.bootstrap-touchspin.min.js"></script>
+    <!-- Instagram Feed Js -->
+    <script src="temp/plugins/instafeed/instafeed.min.js"></script>
+    <!-- Video Lightbox Plugin -->
+    <script src="temp/plugins/ekko-lightbox/dist/ekko-lightbox.min.js"></script>
+    <!-- Count Down Js -->
+    <script src="temp/plugins/syo-timer/build/jquery.syotimer.min.js"></script>
+
+    <!-- slick Carousel -->
+    <script src="temp/plugins/slick/slick.min.js"></script>
+    <script src="temp/plugins/slick/slick-animation.min.js"></script>
+
+    <!-- Google Mapl -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCC72vZw-6tGqFyRhhg5CkF2fqfILn2Tsw"></script>
+    <script type="text/javascript" src="temp/plugins/google-map/gmap.js"></script>
+
+    <!-- Main Js File -->
+    <script src="temp/js/script.js"></script>    
+</body>
+</html>

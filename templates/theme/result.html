@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Basic Page Needs
+  ================================================== -->
+  <meta charset="utf-8">
+  <title>EnergiPredict | Energy Prediction System</title>
+
+  <!-- Mobile Specific Metas
+  ================================================== -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="description" content="Construction Html5 Template">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <meta name="author" content="Themefisher">
+  <meta name="generator" content="Themefisher Constra HTML Template v1.0">
+  
+  <!-- theme meta -->
+  <meta name="theme-name" content="energipredict" />
+  
+  <!-- Favicon -->
+  <link rel="shortcut icon" type="image/x-icon" href="temp/images/favicon.jpg" />
+  
+  <!-- Themefisher Icon font -->
+  <link rel="stylesheet" href="temp/plugins/themefisher-font/style.css">
+  <!-- bootstrap.min css -->
+  <link rel="stylesheet" href="temp/plugins/bootstrap/css/bootstrap.min.css">
+  
+  <!-- Animate css -->
+  <link rel="stylesheet" href="temp/plugins/animate/animate.css">
+  <!-- Slick Carousel -->
+  <link rel="stylesheet" href="temp/plugins/slick/slick.css">
+  <link rel="stylesheet" href="temp/plugins/slick/slick-theme.css">
+  
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="temp/css/style.css">
+
+</head>
+
+<body id="body">
+
+<!-- Start Top Header Bar -->
+<section class="top-header">
+    <div class="container">
+      <div class="row">
+        <div class="logo text-center">
+          <a href="index.html">
+            <!-- replace logo here -->
+            <svg width="135px" height="29px" viewBox="0 0 155 29" version="1.1" xmlns="http://www.w3.org/2000/svg"
+                 xmlns:xlink="http://www.w3.org/1999/xlink">
+              <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" font-size="24"
+                 font-family="AustinBold, Austin" font-weight="bold">
+                <g id="Group" transform="translate(-108.000000, -297.000000)" fill="#000000">
+                  <div><h2><b>EnergiPredict</h2></div>
+                </g>
+              </g>
+            </svg>
+          </a>
+        </div>
+      </div>    
+    </div>
+  </section>					
+			
+
+<nav class="navbar">
+    <div class="container">
+        <ul class="navbar-nav">
+            <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+            <li class="nav-item"><a class="nav-link" href="/predict">Predict</a></li>
+            <li class="nav-item"><a class="nav-link" href="results.html">Results</a></li>
+        </ul>
+    </div>
+</nav>
+
+<div class="hero-slider">
+  <div class="slider-item th-fullpage hero-area" style="background-image: url(temp/images/slider/slider-1.jpg);">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-8 text-center">
+          <h1 data-duration-in=".3" data-animation-in="fadeInUp" data-delay-in=".1">Energy Consumption</h1>
+          <h3 data-duration-in=".3" data-animation-in="fadeInUp" data-delay-in=".5">Energy consumption in HVAC (heating, ventilation, and air conditioning) systems refers to the amount of energy required to heat, cool, and ventilate a building or space. </h3>
+          <a data-duration-in=".3" data-animation-in="fadeInUp" data-delay-in=".8" class="btn" href="#details">Read More</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slider-item th-fullpage hero-area" style="background-image: url(temp/images/slider/slider-2.jpg);">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-8 text-center">
+          <h1 data-duration-in=".3" data-animation-in="fadeInUp" data-delay-in=".1">ML Prediction</h1>
+          <h3 data-duration-in=".3" data-animation-in="fadeInUp" data-delay-in=".5">Energy consumption in large auditoriums can be significant due to the need for heating, cooling, lighting, and ventilation to maintain comfortable conditions for occupants. <br> Using machine learning (ML) to predict energy consumption in HVAC systems involves training algorithms on historical energy usage data and other relevant variables to develop models</h3>
+          <a data-duration-in=".3" data-animation-in="fadeInUp" data-delay-in=".8" class="btn" href="#details">Read More</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h1>Results</h1>
+    <div>
+        {{ table | safe }}
+    </div>
+    <form action="/result/download" method="post">
+        <button type="submit">Download Full Results</button>
+    </form>
+
+<footer class="footer section text-center">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <ul class="social-media">
+                    <li>
+                        <a href="mailto:h.ridwan707@gmail.com">
+                            <i class="fa fa-envelope"></i>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.linkedin.com/in/ridwanllah-husain-655458195/">
+                            <i class="tf-ion-social-linkedin"></i>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.github.com/husainridwan">
+                            <i class="tf-ion-social-github"></i>
+                        </a>
+                    </li>
+                </ul>
+                <ul class="footer-menu text-uppercase">
+                    <li>
+                        <a href="contact.html">Gmail</a>
+                    </li>
+                    <li>
+                        <a href="shop.html">LinkedIn</a>
+                    </li>
+                    <li>
+                        <a href="pricing.html">GitHub</a>
+                    </li>
+                    <li>
+                        <a href="contact.html">PRIVACY POLICY</a>
+                    </li>
+                </ul>
+                <p class="copyright-text">Copyright &copy; EnergiPredict, 2023, Designed &amp; Developed by <a href="https://husainridwan.github.io/portfolio/">Husain Ridwan</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+    <!-- Main jQuery -->
+    <script src="temp/plugins/jquery/dist/jquery.min.js"></script>
+    <!-- Bootstrap 3.1 -->
+    <script src="temp/plugins/bootstrap/js/bootstrap.min.js"></script>
+    <!-- Bootstrap Touchpin -->
+    <script src="temp/plugins/bootstrap-touchspin/dist/jquery.bootstrap-touchspin.min.js"></script>
+    <!-- Instagram Feed Js -->
+    <script src="temp/plugins/instafeed/instafeed.min.js"></script>
+    <!-- Video Lightbox Plugin -->
+    <script src="temp/plugins/ekko-lightbox/dist/ekko-lightbox.min.js"></script>
+    <!-- Count Down Js -->
+    <script src="temp/plugins/syo-timer/build/jquery.syotimer.min.js"></script>
+
+    <!-- slick Carousel -->
+    <script src="temp/plugins/slick/slick.min.js"></script>
+    <script src="temp/plugins/slick/slick-animation.min.js"></script>
+
+    <!-- Google Mapl -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCC72vZw-6tGqFyRhhg5CkF2fqfILn2Tsw"></script>
+    <script type="text/javascript" src="temp/plugins/google-map/gmap.js"></script>
+
+    <!-- Main Js File -->
+    <script src="temp/js/script.js"></script>
+  </body>
+  </html>

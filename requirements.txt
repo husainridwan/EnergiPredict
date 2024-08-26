@@ -11,4 +11,4 @@ scipy==1.12.0
 joblib>=1.0.1
 jupyter>=1.0.0
 fastapi>=0.68.1
-pickle 
+uvicorn>=0.15.0
