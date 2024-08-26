@@ -12,3 +12,6 @@ joblib>=1.0.1
 jupyter>=1.0.0
 fastapi>=0.68.1
 uvicorn>=0.15.0
+xgboost>=1.5.0
+catboost>=1.0.0
+lightgbm>=3.3.0
