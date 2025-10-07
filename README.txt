@@ -1,30 +1,7 @@
-Editorial by HTML5 UP
-html5up.net | @ajlkn
-Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+## ABSTRACT
 
+Electricity consumption has become a huge financial drain to the university. This provoked the study of energy management in large buildings within the academic community. Large buildings consume a substantial amount of energy produced in the university. This study presents the development and evaluation of a machine learning-based system for predicting energy consumption of Heating, Ventilation and Air Conditioning (HVAC) systems in large halls, with the University of Lagos auditoriums as its main focus. 
 
-Say hello to Editorial, a blog/magazine-ish template built around a toggleable "locking"
-sidebar (scroll down to see what I mean) and an accordion-style menu. Not the usual landing
-page/portfolio affair you'd expect to see at HTML5 UP, but I figured for my 41st (!!!)
-template I'd change it up a little. Enjoy :)
+Previous research has shown that the use of machine learning and artificial intelligence can be used to potentially improve energy management in buildings. This is demonstrated with the use of Deep Reinforcement Learning and other predictive control methods which consume a lot of computational resources and are only specific to some types of buildings. This system used advanced ensemble techniques like XGBoost, LightGBM, CatBoost and Stacking algorithms, which effectively captured the complex relationships within the data and improved the precision of the results derived. The Stacking algorithm combined the features of the other ensemble methods to reduce the error between predicted values and actual values. The system leveraged on historical data gathered for a similar building to the auditoriums in the university, which encompasses a wide range of environmental and operational factors such as interior & exterior zone temperatures, roof top units supply/mixed/return air temperatures, heating & lighting loads e.t.c. 
 
-Demo images* courtesy of Unsplash, a radtastic collection of CC0 (public domain) images
-you can use for pretty much whatever.
-
-(* = not included)
-
-AJ
-aj@lkn.io | @ajlkn
-
-
-Credits:
-
-	Demo Images:
-		Unsplash (unsplash.com)
-
-	Icons:
-		Font Awesome (fontawesome.io)
-
-	Other:
-		jQuery (jquery.com)
-		Responsive Tools (github.com/ajlkn/responsive-tools)
+A comprehensive evaluation framework was established to assess the model performance using Mean Squared Error (MSE) as the performance metric. The best model among the 5 models deployed was the Stacking algorithm with an MSE of 8.4568 on the validation dataset. It was integrated into a web application which offers a user-friendly interface for data input and predicts the energy consumption for the uploaded dataset and returns the predicted results which can be downloaded by the user. This system can be used for large buildings with similar characteristics as described and requires less computational resources. This study can be improved by increasing the features used for prediction like including building features, number of occupants, HVAC system usage pattern.
