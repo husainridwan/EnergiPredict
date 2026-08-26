@@ -1,0 +1,130 @@
+{% extends "_base.html" %}
+{% block title %}EnergiPredict — Predict{% endblock %}
+{% block content %}
+<h1>Get a forecast</h1>
+<p class="muted">Upload an hourly CSV history. Need the required columns? Download a
+<a href="/api/sample.csv" style="color:#d4af37;">ready-made sample</a> cut from the training data.</p>
+
+{% if model %}
+<div class="card">
+  <p><strong>{{ model.name }}</strong> — {{ model.horizon_label }}</p>
+  <p class="muted">Test RMSE: {{ model.test_metrics.rmse }} {{ target_units }} · needs at least {{ model.min_history_hours }} hours of history.</p>
+</div>
+{% else %}
+<div class="card"><p class="muted">No model is currently loaded — train one first with <code>python -m energipredict.train</code>.</p></div>
+{% endif %}
+
+<div class="card">
+  <form action="/api/predict?format=json" method="post" enctype="multipart/form-data" id="predict-form">
+    <label for="forecast-file"><strong>Hourly CSV history</strong></label><br>
+    <input id="forecast-file" type="file" name="file" accept=".csv,text/csv" required>
+    <p class="muted">The file must include timestamps, HVAC history, and the weather columns listed by <a href="/api/model" style="color:#a94420;">the model contract</a>.</p>
+    <button type="submit" id="forecast-submit">Get forecast</button>
+    <button type="submit" id="download-submit" formaction="/api/predict?format=csv" formnovalidate>Download full CSV</button>
+  </form>
+  <p id="request-status" class="muted" role="status" aria-live="polite"></p>
+  <div id="forecast-error" class="card" role="alert" hidden></div>
+  <div id="forecast-result" hidden>
+    <h2>Forecast preview</h2>
+    <p id="forecast-summary" class="muted"></p>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead><tr id="forecast-head"></tr></thead>
+        <tbody id="forecast-body"></tbody>
+      </table>
+    </div>
+    <p id="forecast-note" class="muted"></p>
+  </div>
+</div>
+
+<script>
+(() => {
+  const form = document.getElementById('predict-form');
+  const submit = document.getElementById('forecast-submit');
+  const download = document.getElementById('download-submit');
+  const status = document.getElementById('request-status');
+  const error = document.getElementById('forecast-error');
+  const result = document.getElementById('forecast-result');
+  const summary = document.getElementById('forecast-summary');
+  const note = document.getElementById('forecast-note');
+  const head = document.getElementById('forecast-head');
+  const body = document.getElementById('forecast-body');
+
+  function showError(message) {
+    error.hidden = false;
+    error.textContent = message;
+  }
+
+  function errorMessage(payload) {
+    const detail = payload && payload.detail;
+    if (typeof detail === 'string') return detail;
+    if (detail && typeof detail.error === 'string') return detail.error;
+    if (typeof payload?.error === 'string') return payload.error;
+    return 'The forecast could not be generated. Check the CSV and try again.';
+  }
+
+  function renderForecast(payload) {
+    const data = payload.predictions || [];
+    const info = payload.summary || {};
+    result.hidden = false;
+    summary.textContent = `${info.rows_predicted || data.length} hours forecast using ${info.model || 'the deployed model'} (${info.horizon_h || '?'}-hour ahead).`;
+    note.textContent = payload.note || (payload.truncated ? 'Preview shortened; use Download full CSV for every result.' : '');
+    head.replaceChildren();
+    body.replaceChildren();
+    if (!data.length) {
+      showError('The API returned no forecast rows. Upload a longer continuous history and try again.');
+      return;
+    }
+    Object.keys(data[0]).forEach((key) => {
+      const cell = document.createElement('th');
+      cell.textContent = key;
+      head.append(cell);
+    });
+    data.forEach((row) => {
+      const tr = document.createElement('tr');
+      Object.values(row).forEach((value) => {
+        const cell = document.createElement('td');
+        cell.textContent = value ?? '';
+        tr.append(cell);
+      });
+      body.append(tr);
+    });
+  }
+
+  form.addEventListener('submit', async (event) => {
+    if (event.submitter === download) return;
+    event.preventDefault();
+    error.hidden = true;
+    result.hidden = true;
+    status.textContent = 'Scoring uploaded history…';
+    submit.disabled = true;
+    download.disabled = true;
+    try {
+      const response = await fetch('/api/predict?format=json', {
+        method: 'POST',
+        body: new FormData(form),
+      });
+      let payload;
+      try {
+        payload = await response.json();
+      } catch (_) {
+        throw new Error('The server returned an unexpected response.');
+      }
+      if (!response.ok) {
+        showError(errorMessage(payload));
+        status.textContent = 'Forecast not generated.';
+        return;
+      }
+      renderForecast(payload);
+      status.textContent = 'Forecast ready.';
+    } catch (err) {
+      showError(err.message || 'The forecast request failed. Check your connection and try again.');
+      status.textContent = 'Forecast not generated.';
+    } finally {
+      submit.disabled = false;
+      download.disabled = false;
+    }
+  });
+})();
+</script>
+{% endblock %}

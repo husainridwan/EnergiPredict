@@ -1,0 +1,40 @@
+{% extends "_base.html" %}
+{% block title %}EnergiPredict — HVAC energy forecasting{% endblock %}
+{% block content %}
+<h1>EnergiPredict</h1>
+<p class="muted">Day-ahead HVAC energy forecasting for large auditoria, version {{ version }}.</p>
+
+{% if metrics.available %}
+  {% set v = headline.verdict %}
+  <div class="card">
+    <span class="badge">Deployed: {{ headline.deployed }}</span>
+    <h2 style="margin-top:16px;">Headline result — {{ deployed_horizon }}-hour-ahead forecast</h2>
+    {% if v %}
+      <p>
+        {{ v.best_model }} {{ "beats" if v.beats_baseline else "loses to" }}
+        {{ v.best_baseline }} on test RMSE by {{ v.test_rmse_improvement_pct | abs }}%.
+      </p>
+    {% endif %}
+    <table>
+      <tr><th>Model</th><th>Test RMSE ({{ target_units }})</th><th>Test MAE</th><th>Test R²</th><th>CV(RMSE)</th></tr>
+      {% for m in headline.models %}
+      <tr>
+        <td>{{ m.name }}</td>
+        <td>{{ m.test.rmse }}</td>
+        <td>{{ m.test.mae }}</td>
+        <td>{{ m.test.r2 }}</td>
+        <td>{{ m.test.cvrmse_pct }}%</td>
+      </tr>
+      {% endfor %}
+    </table>
+    <p class="muted" style="margin-top:12px;">Full comparison, both horizons, and baselines on the <a href="/benchmarks" style="color:#d4af37;">benchmarks page</a>.</p>
+  </div>
+{% else %}
+  <div class="card">
+    <p>{{ metrics.message }}</p>
+  </div>
+{% endif %}
+
+<h2>Try it</h2>
+<p class="muted">Upload an hourly history to get a forecast — see the <a href="/predict" style="color:#d4af37;">predict page</a>, or call <code>POST /api/predict</code> directly.</p>
+{% endblock %}

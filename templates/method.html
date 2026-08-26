@@ -1,0 +1,20 @@
+{% extends "_base.html" %}
+{% block title %}EnergiPredict — Method{% endblock %}
+{% block content %}
+<h1>Method</h1>
+
+<h2>What's being predicted</h2>
+<p class="muted">{{ metrics.target.name if metrics.available else "hvac_total" }} — the sum of the building's north and south HVAC submeters, in {{ target_units }}. An earlier version of this project used a self-weighted combination of the two meters; that was replaced because it wasn't a real total and wasn't comparable to a building's actual metered consumption.</p>
+
+<h2>Chronological split, not random</h2>
+<p class="muted">Hourly building data is strongly autocorrelated — a random train/test split places 2pm in training and 3pm the same day in test, so the model is scored on rows whose neighbours it has already memorised. Every result here uses a time-ordered split instead: train on the earliest stretch, validate on the next, test on a genuinely unseen future window. See the benchmarks page for a direct, controlled measurement of what a shuffled split would have overstated.</p>
+
+<h2>What the model is allowed to see</h2>
+<p class="muted">Only information actually available at forecast time: past consumption (lagged at or beyond the forecast horizon), weather, and calendar position. Building-management sensors and other electrical submeters are excluded — they're measured at the same instant being predicted, so using them would mean the answer is already on the sensor bus.</p>
+
+<h2>Two honest baselines</h2>
+<p class="muted">Persistence (repeat the last known value) and seasonal-naive (repeat the same hour last week) are scored as real competitors, not asides. At a 1-hour horizon, persistence is extremely strong — a trained model has to earn its keep against it. At the deployed 24-hour horizon, a well-tuned model has more room to add value.</p>
+
+<h2>Reproduce this</h2>
+<p class="muted"><code>python -m energipredict.train</code> regenerates every number on this site from <code>data.csv</code>. Nothing here is transcribed by hand.</p>
+{% endblock %}

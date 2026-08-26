@@ -1,0 +1,47 @@
+{% extends "_base.html" %}
+{% block title %}EnergiPredict — Benchmarks{% endblock %}
+{% block content %}
+<h1>Benchmarks</h1>
+<p class="muted">Every model, every horizon, scored against naive baselines on a genuinely unseen chronological test window.</p>
+
+{% if metrics.available %}
+  {% for h_key, h in horizons.items() %}
+  <h2>{{ h.horizon_h }}-hour-ahead forecast</h2>
+  <p class="muted">Split: {{ h.split.train.start }} → {{ h.split.test.end }} · {{ h.feature_spec.n_features }} features · deployed: <strong>{{ h.deployed }}</strong></p>
+  <table>
+    <tr><th>Model</th><th>Family</th><th>Val RMSE</th><th>Test RMSE</th><th>Test MAE</th><th>Test R²</th><th>CV(RMSE)</th><th>Meets ASHRAE G14</th></tr>
+    {% for m in h.models %}
+    <tr {% if m.name == h.deployed %}style="color:#d4af37;"{% endif %}>
+      <td>{{ m.name }}</td>
+      <td>{{ m.family }}</td>
+      <td>{{ m.validation.rmse }}</td>
+      <td>{{ m.test.rmse }}</td>
+      <td>{{ m.test.mae }}</td>
+      <td>{{ m.test.r2 }}</td>
+      <td>{{ m.test.cvrmse_pct }}%</td>
+      <td>{{ "yes" if m.test.meets_ashrae_g14 else "no" }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% if h.verdict %}
+    <p class="muted" style="margin-top:10px;">
+      {{ h.verdict.best_model }} {{ "beats" if h.verdict.beats_baseline else "loses to" }}
+      {{ h.verdict.best_baseline }} by {{ h.verdict.test_rmse_improvement_pct | abs }}% on test RMSE.
+    </p>
+  {% endif %}
+  {% endfor %}
+
+  {% if metrics.leakage_demonstration %}
+  <h2>What a shuffled split costs</h2>
+  <p class="muted">{{ metrics.leakage_demonstration.note }}</p>
+  <table>
+    <tr><th></th><th>RMSE</th><th>R²</th></tr>
+    <tr><td>Shuffled random split</td><td>{{ metrics.leakage_demonstration.shuffled_random_split.rmse }}</td><td>{{ metrics.leakage_demonstration.shuffled_random_split.r2 }}</td></tr>
+    <tr><td>Chronological split</td><td>{{ metrics.leakage_demonstration.chronological_split.rmse }}</td><td>{{ metrics.leakage_demonstration.chronological_split.r2 }}</td></tr>
+  </table>
+  <p class="muted" style="margin-top:10px;">Shuffling understated RMSE by {{ metrics.leakage_demonstration.rmse_understated_by_pct }}%.</p>
+  {% endif %}
+{% else %}
+  <div class="card"><p>{{ metrics.message }}</p></div>
+{% endif %}
+{% endblock %}

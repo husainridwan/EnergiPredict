@@ -18,6 +18,9 @@ env/
 # Prediction output written per-request by the app
 outputs/
 
+# Oversized generated model (kept locally; exceeds GitHub's 100 MB limit)
+models/h24/randomforest.joblib
+
 # OS
 .DS_Store
 Thumbs.db

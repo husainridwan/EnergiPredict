@@ -1,0 +1,880 @@
+{
+  "generated_at": "2026-08-26T10:27:31+00:00",
+  "energipredict_version": "2.0.0",
+  "dataset": {
+    "rows_in_file": 19212,
+    "first_timestamp": "2018-02-22 00:00:00",
+    "last_timestamp": "2020-05-02 11:00:00",
+    "expected_hourly_rows": 19212,
+    "missing_timestamps": 0,
+    "duplicate_timestamps": 0,
+    "coverage": 1.0,
+    "target_interpolated": 0,
+    "target_unrecoverable": 0,
+    "weather_interpolated": {
+      "air_temp_set_1": 0,
+      "air_temp_set_2": 0,
+      "dew_point_temperature_set_1d": 0,
+      "relative_humidity_set_1": 0,
+      "solar_radiation_set_1": 0
+    }
+  },
+  "target": {
+    "name": "hvac_total",
+    "definition": "hvac_N + hvac_S",
+    "units": "kW (hourly mean, numerically equal to kWh consumed in the hour)",
+    "mean": 42.08,
+    "std": 22.174,
+    "min": 0.0,
+    "max": 123.126,
+    "n": 19212
+  },
+  "ashrae_g14_cvrmse_threshold": 0.3,
+  "search": {
+    "n_iter": 8,
+    "n_splits": 3,
+    "skipped": []
+  },
+  "horizons": {
+    "1": {
+      "horizon_h": 1,
+      "feature_spec": {
+        "horizon_h": 1,
+        "target": "hvac_total",
+        "n_features": 36,
+        "columns": [
+          "hour",
+          "dayofweek",
+          "month",
+          "dayofyear",
+          "is_weekend",
+          "hour_sin",
+          "hour_cos",
+          "dow_sin",
+          "dow_cos",
+          "doy_sin",
+          "doy_cos",
+          "air_temp_set_1",
+          "relative_humidity_set_1",
+          "solar_radiation_set_1",
+          "cooling_degree_hours",
+          "heating_degree_hours",
+          "air_temp_lag_1h",
+          "air_temp_lag_2h",
+          "air_temp_lag_3h",
+          "air_temp_lag_24h",
+          "air_temp_roll_mean_24h",
+          "solar_roll_mean_24h",
+          "hvac_lag_1h",
+          "hvac_lag_2h",
+          "hvac_lag_3h",
+          "hvac_lag_24h",
+          "hvac_lag_48h",
+          "hvac_lag_168h",
+          "hvac_roll_mean_24h",
+          "hvac_roll_std_24h",
+          "hvac_roll_min_24h",
+          "hvac_roll_max_24h",
+          "hvac_roll_mean_168h",
+          "hvac_roll_std_168h",
+          "hvac_roll_min_168h",
+          "hvac_roll_max_168h"
+        ],
+        "lags_used": [
+          1,
+          2,
+          3,
+          24,
+          48,
+          168
+        ],
+        "lags_withheld": [],
+        "excluded_columns": {
+          "intTemp": "bms-sensor: measured at time t, not knowable in advance",
+          "extTemp": "bms-sensor: measured at time t, not knowable in advance",
+          "airSpeed": "bms-sensor: measured at time t, not knowable in advance",
+          "waterHeat": "bms-sensor: measured at time t, not knowable in advance",
+          "hp_hws_temp": "bms-sensor: measured at time t, not knowable in advance",
+          "rtuSat": "bms-sensor: measured at time t, not knowable in advance",
+          "rtuRat": "bms-sensor: measured at time t, not knowable in advance",
+          "rtuMat": "bms-sensor: measured at time t, not knowable in advance",
+          "rtuOat": "bms-sensor: measured at time t, not knowable in advance",
+          "rtuFan": "bms-sensor: measured at time t, not knowable in advance",
+          "mels_S": "non-hvac meter: measured at time t, not knowable in advance",
+          "lig_S": "non-hvac meter: measured at time t, not knowable in advance",
+          "mels_N": "non-hvac meter: measured at time t, not knowable in advance",
+          "air_temp_set_2": "near-duplicate of air_temp_set_1",
+          "dew_point_temperature_set_1d": "recoverable from air_temp and relative_humidity"
+        },
+        "rows_before": 19212,
+        "rows_after": 19044,
+        "rows_dropped": 168
+      },
+      "split": {
+        "train": {
+          "start": "2018-03-01 00:00",
+          "end": "2019-09-07 09:00",
+          "rows": 13330,
+          "target_mean": 46.069,
+          "target_std": 22.144
+        },
+        "val": {
+          "start": "2019-09-07 10:00",
+          "end": "2020-01-04 09:00",
+          "rows": 2856,
+          "target_mean": 30.905,
+          "target_std": 25.095
+        },
+        "test": {
+          "start": "2020-01-04 10:00",
+          "end": "2020-05-02 11:00",
+          "rows": 2858,
+          "target_mean": 33.617,
+          "target_std": 9.86
+        }
+      },
+      "models": [
+        {
+          "name": "Mean predictor",
+          "family": "baseline",
+          "validation": {
+            "rmse": 29.3166,
+            "mae": 24.4578,
+            "r2": -0.3652,
+            "cvrmse": 0.9486,
+            "cvrmse_pct": 94.86,
+            "meets_ashrae_g14": false
+          },
+          "test": {
+            "rmse": 15.8819,
+            "mae": 13.8461,
+            "r2": -1.5956,
+            "cvrmse": 0.4724,
+            "cvrmse_pct": 47.24,
+            "meets_ashrae_g14": false
+          },
+          "best_params": {},
+          "cv_rmse": null,
+          "fit_seconds": 0.54
+        },
+        {
+          "name": "Persistence (t-1)",
+          "family": "baseline",
+          "validation": {
+            "rmse": 7.2967,
+            "mae": 4.083,
+            "r2": 0.9154,
+            "cvrmse": 0.2361,
+            "cvrmse_pct": 23.61,
+            "meets_ashrae_g14": true
+          },
+          "test": {
+            "rmse": 3.7023,
+            "mae": 2.237,
+            "r2": 0.8589,
+            "cvrmse": 0.1101,
+            "cvrmse_pct": 11.01,
+            "meets_ashrae_g14": true
+          },
+          "best_params": {},
+          "cv_rmse": null,
+          "fit_seconds": 0.0
+        },
+        {
+          "name": "Seasonal naive (t-24)",
+          "family": "baseline",
+          "validation": {
+            "rmse": 22.1786,
+            "mae": 15.0587,
+            "r2": 0.2186,
+            "cvrmse": 0.7176,
+            "cvrmse_pct": 71.76,
+            "meets_ashrae_g14": false
+          },
+          "test": {
+            "rmse": 9.3956,
+            "mae": 6.2808,
+            "r2": 0.0916,
+            "cvrmse": 0.2795,
+            "cvrmse_pct": 27.95,
+            "meets_ashrae_g14": true
+          },
+          "best_params": {},
+          "cv_rmse": null,
+          "fit_seconds": 0.0
+        },
+        {
+          "name": "Seasonal naive (t-168)",
+          "family": "baseline",
+          "validation": {
+            "rmse": 35.0803,
+            "mae": 26.3789,
+            "r2": -0.9548,
+            "cvrmse": 1.1351,
+            "cvrmse_pct": 113.51,
+            "meets_ashrae_g14": false
+          },
+          "test": {
+            "rmse": 9.9794,
+            "mae": 7.0244,
+            "r2": -0.0248,
+            "cvrmse": 0.2969,
+            "cvrmse_pct": 29.69,
+            "meets_ashrae_g14": true
+          },
+          "best_params": {},
+          "cv_rmse": null,
+          "fit_seconds": 0.0
+        },
+        {
+          "name": "Linear regression",
+          "family": "linear",
+          "validation": {
+            "rmse": 7.1773,
+            "mae": 4.7907,
+            "r2": 0.9182,
+            "cvrmse": 0.2322,
+            "cvrmse_pct": 23.22,
+            "meets_ashrae_g14": true
+          },
+          "test": {
+            "rmse": 3.7276,
+            "mae": 2.4827,
+            "r2": 0.857,
+            "cvrmse": 0.1109,
+            "cvrmse_pct": 11.09,
+            "meets_ashrae_g14": true
+          },
+          "best_params": {},
+          "cv_rmse": 10.205405552467148,
+          "fit_seconds": 20.04
+        },
+        {
+          "name": "Ridge regression",
+          "family": "linear",
+          "validation": {
+            "rmse": 7.2882,
+            "mae": 4.912,
+            "r2": 0.9156,
+            "cvrmse": 0.2358,
+            "cvrmse_pct": 23.58,
+            "meets_ashrae_g14": true
+          },
+          "test": {
+            "rmse": 3.7544,
+            "mae": 2.5084,
+            "r2": 0.855,
+            "cvrmse": 0.1117,
+            "cvrmse_pct": 11.17,
+            "meets_ashrae_g14": true
+          },
+          "best_params": {
+            "model__alpha": 100.0
+          },
+          "cv_rmse": 6.7307498167436535,
+          "fit_seconds": 15.07
+        },
+        {
+          "name": "RandomForest",
+          "family": "tree",
+          "validation": {
+            "rmse": 7.307,
+            "mae": 4.8486,
+            "r2": 0.9152,
+            "cvrmse": 0.2364,
+            "cvrmse_pct": 23.64,
+            "meets_ashrae_g14": true
+          },
+          "test": {
+            "rmse": 3.8028,
+            "mae": 2.5462,
+            "r2": 0.8512,
+            "cvrmse": 0.1131,
+            "cvrmse_pct": 11.31,
+            "meets_ashrae_g14": true
+          },
+          "best_params": {
+            "n_estimators": 400,
+            "min_samples_leaf": 5,
+            "max_features": 1.0,
+            "max_depth": 10
+          },
+          "cv_rmse": 7.913506978329196,
+          "fit_seconds": 401.6
+        },
+        {
+          "name": "GradientBoosting",
+          "family": "tree",
+          "validation": {
+            "rmse": 7.3562,
+            "mae": 4.9189,
+            "r2": 0.914,
+            "cvrmse": 0.238,
+            "cvrmse_pct": 23.8,
+            "meets_ashrae_g14": true
+          },
+          "test": {
+            "rmse": 3.7442,
+            "mae": 2.5132,
+            "r2": 0.8557,
+            "cvrmse": 0.1114,
+            "cvrmse_pct": 11.14,
+            "meets_ashrae_g14": true
+          },
+          "best_params": {
+            "subsample": 1.0,
+            "n_estimators": 200,
+            "max_depth": 3,
+            "learning_rate": 0.03
+          },
+          "cv_rmse": 8.124525211541913,
+          "fit_seconds": 136.12
+        },
+        {
+          "name": "XGBoost",
+          "family": "tree",
+          "validation": {
+            "rmse": 7.3266,
+            "mae": 4.8811,
+            "r2": 0.9147,
+            "cvrmse": 0.2371,
+            "cvrmse_pct": 23.71,
+            "meets_ashrae_g14": true
+          },
+          "test": {
+            "rmse": 3.7626,
+            "mae": 2.5168,
+            "r2": 0.8543,
+            "cvrmse": 0.1119,
+            "cvrmse_pct": 11.19,
+            "meets_ashrae_g14": true
+          },
+          "best_params": {
+            "subsample": 0.9,
+            "reg_lambda": 1.0,
+            "n_estimators": 300,
+            "min_child_weight": 5,
+            "max_depth": 4,
+            "learning_rate": 0.02,
+            "colsample_bytree": 0.7
+          },
+          "cv_rmse": 8.134972971929857,
+          "fit_seconds": 55.9
+        },
+        {
+          "name": "LightGBM",
+          "family": "tree",
+          "validation": {
+            "rmse": 7.3218,
+            "mae": 4.9569,
+            "r2": 0.9148,
+            "cvrmse": 0.2369,
+            "cvrmse_pct": 23.69,
+            "meets_ashrae_g14": true
+          },
+          "test": {
+            "rmse": 3.9249,
+            "mae": 2.7526,
+            "r2": 0.8415,
+            "cvrmse": 0.1168,
+            "cvrmse_pct": 11.68,
+            "meets_ashrae_g14": true
+          },
+          "best_params": {
+            "subsample_freq": 1,
+            "subsample": 0.9,
+            "num_leaves": 63,
+            "n_estimators": 300,
+            "min_child_samples": 20,
+            "learning_rate": 0.02,
+            "colsample_bytree": 0.7
+          },
+          "cv_rmse": 8.268017138505664,
+          "fit_seconds": 26.43
+        },
+        {
+          "name": "CatBoost",
+          "family": "tree",
+          "validation": {
+            "rmse": 7.1913,
+            "mae": 4.8572,
+            "r2": 0.9179,
+            "cvrmse": 0.2327,
+            "cvrmse_pct": 23.27,
+            "meets_ashrae_g14": true
+          },
+          "test": {
+            "rmse": 3.7812,
+            "mae": 2.5258,
+            "r2": 0.8529,
+            "cvrmse": 0.1125,
+            "cvrmse_pct": 11.25,
+            "meets_ashrae_g14": true
+          },
+          "best_params": {
+            "learning_rate": 0.03,
+            "l2_leaf_reg": 3.0,
+            "iterations": 800,
+            "depth": 4
+          },
+          "cv_rmse": 8.571874926642733,
+          "fit_seconds": 140.54
+        },
+        {
+          "name": "Stacking ensemble",
+          "family": "ensemble",
+          "validation": {
+            "rmse": 7.0907,
+            "mae": 4.6077,
+            "r2": 0.9201,
+            "cvrmse": 0.2294,
+            "cvrmse_pct": 22.94,
+            "meets_ashrae_g14": true
+          },
+          "test": {
+            "rmse": 4.1124,
+            "mae": 3.0286,
+            "r2": 0.826,
+            "cvrmse": 0.1223,
+            "cvrmse_pct": 12.23,
+            "meets_ashrae_g14": true
+          },
+          "best_params": {},
+          "cv_rmse": null,
+          "fit_seconds": 12.42
+        }
+      ],
+      "deployed": "Stacking ensemble",
+      "blend_weights": {
+        "XGBoost": 0.21371572004326864,
+        "LightGBM": 0.14089932318886264,
+        "CatBoost": 0.6701767031907417
+      },
+      "verdict": {
+        "best_model": "Linear regression",
+        "best_baseline": "Persistence (t-1)",
+        "test_rmse_improvement_pct": -0.7,
+        "beats_baseline": false
+      }
+    },
+    "24": {
+      "horizon_h": 24,
+      "feature_spec": {
+        "horizon_h": 24,
+        "target": "hvac_total",
+        "n_features": 33,
+        "columns": [
+          "hour",
+          "dayofweek",
+          "month",
+          "dayofyear",
+          "is_weekend",
+          "hour_sin",
+          "hour_cos",
+          "dow_sin",
+          "dow_cos",
+          "doy_sin",
+          "doy_cos",
+          "air_temp_set_1",
+          "relative_humidity_set_1",
+          "solar_radiation_set_1",
+          "cooling_degree_hours",
+          "heating_degree_hours",
+          "air_temp_lag_1h",
+          "air_temp_lag_2h",
+          "air_temp_lag_3h",
+          "air_temp_lag_24h",
+          "air_temp_roll_mean_24h",
+          "solar_roll_mean_24h",
+          "hvac_lag_24h",
+          "hvac_lag_48h",
+          "hvac_lag_168h",
+          "hvac_roll_mean_24h",
+          "hvac_roll_std_24h",
+          "hvac_roll_min_24h",
+          "hvac_roll_max_24h",
+          "hvac_roll_mean_168h",
+          "hvac_roll_std_168h",
+          "hvac_roll_min_168h",
+          "hvac_roll_max_168h"
+        ],
+        "lags_used": [
+          24,
+          48,
+          168
+        ],
+        "lags_withheld": [
+          1,
+          2,
+          3
+        ],
+        "excluded_columns": {
+          "intTemp": "bms-sensor: measured at time t, not knowable in advance",
+          "extTemp": "bms-sensor: measured at time t, not knowable in advance",
+          "airSpeed": "bms-sensor: measured at time t, not knowable in advance",
+          "waterHeat": "bms-sensor: measured at time t, not knowable in advance",
+          "hp_hws_temp": "bms-sensor: measured at time t, not knowable in advance",
+          "rtuSat": "bms-sensor: measured at time t, not knowable in advance",
+          "rtuRat": "bms-sensor: measured at time t, not knowable in advance",
+          "rtuMat": "bms-sensor: measured at time t, not knowable in advance",
+          "rtuOat": "bms-sensor: measured at time t, not knowable in advance",
+          "rtuFan": "bms-sensor: measured at time t, not knowable in advance",
+          "mels_S": "non-hvac meter: measured at time t, not knowable in advance",
+          "lig_S": "non-hvac meter: measured at time t, not knowable in advance",
+          "mels_N": "non-hvac meter: measured at time t, not knowable in advance",
+          "air_temp_set_2": "near-duplicate of air_temp_set_1",
+          "dew_point_temperature_set_1d": "recoverable from air_temp and relative_humidity"
+        },
+        "rows_before": 19212,
+        "rows_after": 19021,
+        "rows_dropped": 191
+      },
+      "split": {
+        "train": {
+          "start": "2018-03-01 23:00",
+          "end": "2019-09-07 16:00",
+          "rows": 13314,
+          "target_mean": 46.04,
+          "target_std": 22.166
+        },
+        "val": {
+          "start": "2019-09-07 17:00",
+          "end": "2020-01-04 13:00",
+          "rows": 2853,
+          "target_mean": 30.926,
+          "target_std": 25.099
+        },
+        "test": {
+          "start": "2020-01-04 14:00",
+          "end": "2020-05-02 11:00",
+          "rows": 2854,
+          "target_mean": 33.642,
+          "target_std": 9.842
+        }
+      },
+      "models": [
+        {
+          "name": "Mean predictor",
+          "family": "baseline",
+          "validation": {
+            "rmse": 29.295,
+            "mae": 24.4326,
+            "r2": -0.3627,
+            "cvrmse": 0.9473,
+            "cvrmse_pct": 94.73,
+            "meets_ashrae_g14": false
+          },
+          "test": {
+            "rmse": 15.8282,
+            "mae": 13.7991,
+            "r2": -1.5871,
+            "cvrmse": 0.4705,
+            "cvrmse_pct": 47.05,
+            "meets_ashrae_g14": false
+          },
+          "best_params": {},
+          "cv_rmse": null,
+          "fit_seconds": 0.0
+        },
+        {
+          "name": "Persistence (t-24)",
+          "family": "baseline",
+          "validation": {
+            "rmse": 22.1761,
+            "mae": 15.0501,
+            "r2": 0.2191,
+            "cvrmse": 0.7171,
+            "cvrmse_pct": 71.71,
+            "meets_ashrae_g14": false
+          },
+          "test": {
+            "rmse": 9.384,
+            "mae": 6.2678,
+            "r2": 0.0906,
+            "cvrmse": 0.2789,
+            "cvrmse_pct": 27.89,
+            "meets_ashrae_g14": true
+          },
+          "best_params": {},
+          "cv_rmse": null,
+          "fit_seconds": 0.0
+        },
+        {
+          "name": "Seasonal naive (t-168)",
+          "family": "baseline",
+          "validation": {
+            "rmse": 34.9666,
+            "mae": 26.2611,
+            "r2": -0.9415,
+            "cvrmse": 1.1307,
+            "cvrmse_pct": 113.07,
+            "meets_ashrae_g14": false
+          },
+          "test": {
+            "rmse": 9.9851,
+            "mae": 7.0293,
+            "r2": -0.0296,
+            "cvrmse": 0.2968,
+            "cvrmse_pct": 29.68,
+            "meets_ashrae_g14": true
+          },
+          "best_params": {},
+          "cv_rmse": null,
+          "fit_seconds": 0.0
+        },
+        {
+          "name": "Linear regression",
+          "family": "linear",
+          "validation": {
+            "rmse": 18.0922,
+            "mae": 14.8245,
+            "r2": 0.4802,
+            "cvrmse": 0.585,
+            "cvrmse_pct": 58.5,
+            "meets_ashrae_g14": false
+          },
+          "test": {
+            "rmse": 7.6495,
+            "mae": 5.6729,
+            "r2": 0.3957,
+            "cvrmse": 0.2274,
+            "cvrmse_pct": 22.74,
+            "meets_ashrae_g14": true
+          },
+          "best_params": {},
+          "cv_rmse": 38.35759986899416,
+          "fit_seconds": 0.43
+        },
+        {
+          "name": "Ridge regression",
+          "family": "linear",
+          "validation": {
+            "rmse": 18.0715,
+            "mae": 14.8344,
+            "r2": 0.4814,
+            "cvrmse": 0.5844,
+            "cvrmse_pct": 58.44,
+            "meets_ashrae_g14": false
+          },
+          "test": {
+            "rmse": 7.6066,
+            "mae": 5.6273,
+            "r2": 0.4025,
+            "cvrmse": 0.2261,
+            "cvrmse_pct": 22.61,
+            "meets_ashrae_g14": true
+          },
+          "best_params": {
+            "model__alpha": 100.0
+          },
+          "cv_rmse": 17.853541082482185,
+          "fit_seconds": 0.33
+        },
+        {
+          "name": "RandomForest",
+          "family": "tree",
+          "validation": {
+            "rmse": 19.9246,
+            "mae": 16.6944,
+            "r2": 0.3696,
+            "cvrmse": 0.6443,
+            "cvrmse_pct": 64.43,
+            "meets_ashrae_g14": false
+          },
+          "test": {
+            "rmse": 8.9912,
+            "mae": 6.6562,
+            "r2": 0.1652,
+            "cvrmse": 0.2673,
+            "cvrmse_pct": 26.73,
+            "meets_ashrae_g14": true
+          },
+          "best_params": {
+            "n_estimators": 200,
+            "min_samples_leaf": 1,
+            "max_features": 1.0,
+            "max_depth": null
+          },
+          "cv_rmse": 18.129175890750616,
+          "fit_seconds": 316.95
+        },
+        {
+          "name": "GradientBoosting",
+          "family": "tree",
+          "validation": {
+            "rmse": 19.8596,
+            "mae": 16.4779,
+            "r2": 0.3737,
+            "cvrmse": 0.6422,
+            "cvrmse_pct": 64.22,
+            "meets_ashrae_g14": false
+          },
+          "test": {
+            "rmse": 7.4332,
+            "mae": 5.3607,
+            "r2": 0.4294,
+            "cvrmse": 0.2209,
+            "cvrmse_pct": 22.09,
+            "meets_ashrae_g14": true
+          },
+          "best_params": {
+            "subsample": 1.0,
+            "n_estimators": 400,
+            "max_depth": 3,
+            "learning_rate": 0.05
+          },
+          "cv_rmse": 19.330038462769195,
+          "fit_seconds": 130.6
+        },
+        {
+          "name": "XGBoost",
+          "family": "tree",
+          "validation": {
+            "rmse": 19.9918,
+            "mae": 16.6627,
+            "r2": 0.3654,
+            "cvrmse": 0.6464,
+            "cvrmse_pct": 64.64,
+            "meets_ashrae_g14": false
+          },
+          "test": {
+            "rmse": 8.3195,
+            "mae": 6.3173,
+            "r2": 0.2853,
+            "cvrmse": 0.2473,
+            "cvrmse_pct": 24.73,
+            "meets_ashrae_g14": true
+          },
+          "best_params": {
+            "subsample": 0.9,
+            "reg_lambda": 1.0,
+            "n_estimators": 600,
+            "min_child_weight": 1,
+            "max_depth": 8,
+            "learning_rate": 0.02,
+            "colsample_bytree": 0.9
+          },
+          "cv_rmse": 19.178464124747126,
+          "fit_seconds": 56.61
+        },
+        {
+          "name": "LightGBM",
+          "family": "tree",
+          "validation": {
+            "rmse": 19.9237,
+            "mae": 16.4619,
+            "r2": 0.3697,
+            "cvrmse": 0.6442,
+            "cvrmse_pct": 64.42,
+            "meets_ashrae_g14": false
+          },
+          "test": {
+            "rmse": 7.9804,
+            "mae": 5.9691,
+            "r2": 0.3423,
+            "cvrmse": 0.2372,
+            "cvrmse_pct": 23.72,
+            "meets_ashrae_g14": true
+          },
+          "best_params": {
+            "subsample_freq": 1,
+            "subsample": 0.9,
+            "num_leaves": 63,
+            "n_estimators": 300,
+            "min_child_samples": 10,
+            "learning_rate": 0.02,
+            "colsample_bytree": 0.9
+          },
+          "cv_rmse": 18.964841775171152,
+          "fit_seconds": 21.77
+        },
+        {
+          "name": "CatBoost",
+          "family": "tree",
+          "validation": {
+            "rmse": 21.9366,
+            "mae": 17.8024,
+            "r2": 0.2359,
+            "cvrmse": 0.7093,
+            "cvrmse_pct": 70.93,
+            "meets_ashrae_g14": false
+          },
+          "test": {
+            "rmse": 7.9501,
+            "mae": 6.0595,
+            "r2": 0.3473,
+            "cvrmse": 0.2363,
+            "cvrmse_pct": 23.63,
+            "meets_ashrae_g14": true
+          },
+          "best_params": {
+            "learning_rate": 0.1,
+            "l2_leaf_reg": 9.0,
+            "iterations": 400,
+            "depth": 8
+          },
+          "cv_rmse": 19.037239532225325,
+          "fit_seconds": 140.72
+        },
+        {
+          "name": "Stacking ensemble",
+          "family": "ensemble",
+          "validation": {
+            "rmse": 18.2776,
+            "mae": 15.6673,
+            "r2": 0.4695,
+            "cvrmse": 0.591,
+            "cvrmse_pct": 59.1,
+            "meets_ashrae_g14": false
+          },
+          "test": {
+            "rmse": 11.6709,
+            "mae": 9.9331,
+            "r2": -0.4066,
+            "cvrmse": 0.3469,
+            "cvrmse_pct": 34.69,
+            "meets_ashrae_g14": false
+          },
+          "best_params": {},
+          "cv_rmse": null,
+          "fit_seconds": 55.42
+        }
+      ],
+      "deployed": "Ridge regression",
+      "blend_weights": {
+        "XGBoost": -0.6125835044510455,
+        "LightGBM": 1.154185582068424,
+        "CatBoost": 0.4781691399840664
+      },
+      "verdict": {
+        "best_model": "GradientBoosting",
+        "best_baseline": "Persistence (t-24)",
+        "test_rmse_improvement_pct": 20.8,
+        "beats_baseline": true
+      }
+    }
+  },
+  "deployed_horizon_h": 24,
+  "leakage_demonstration": {
+    "model": "LightGBM",
+    "horizon_h": 1,
+    "note": "Identical features and identical hyperparameter search; only the split differs. The shuffled split places adjacent hours on both sides of the boundary, so the test rows are neighbours of training rows and the score reflects interpolation rather than forecasting.",
+    "shuffled_random_split": {
+      "rmse": 5.9269,
+      "mae": 3.9717,
+      "r2": 0.931,
+      "cvrmse": 0.1413,
+      "cvrmse_pct": 14.13,
+      "meets_ashrae_g14": true
+    },
+    "chronological_split": {
+      "rmse": 4.6418,
+      "mae": 3.1103,
+      "r2": 0.8395,
+      "cvrmse": 0.1444,
+      "cvrmse_pct": 14.44,
+      "meets_ashrae_g14": true
+    },
+    "rmse_understated_by_pct": -27.7
+  }
+}

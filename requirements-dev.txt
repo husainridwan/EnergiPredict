@@ -6,6 +6,9 @@
 
 -r requirements.txt
 
+# --- testing ---
+pytest>=8.0
+
 # --- notebook ---
 jupyterlab>=4.2
 ipykernel>=6.29

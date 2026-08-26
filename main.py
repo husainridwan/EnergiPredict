@@ -1,38 +1,9 @@
-"""EnergiPredict HTTP API and web front end.
-
-Serving is a thin layer over :mod:`energipredict.serve`; all the modelling logic
-lives in the package so that the API and the notebook cannot disagree about what
-a feature is.
-
-Four things here are deliberate departures from the previous version, each of
-which was a live defect rather than a matter of taste:
-
-*Predictions are streamed from memory.* The old handler wrote every result to a
-fixed ``result.csv`` in the working directory and then served that path. Two
-users uploading at once overwrote each other's file, and whoever's request
-finished second downloaded the other's numbers. Nothing touches disk now.
-
-*Uploads are bounded.* ``pd.read_csv(file.file)`` read whatever arrived, so a
-large file was an out-of-memory condition. Reads now stop at
-:data:`MAX_UPLOAD_BYTES`.
-
-*The CORS policy is valid.* ``allow_origins=["*"]`` together with
-``allow_credentials=True`` is rejected by browsers -- the wildcard is not
-permitted on a credentialed request, so the old configuration silently failed for
-exactly the cross-origin calls it was meant to enable. Origins are now explicit,
-from the environment, and credentials are off because none of these endpoints
-authenticate anything.
-
-*Failures explain themselves.* A missing column produced ``KeyError: 'intTemp'``
-inside a 500. Uploads are validated against the model's recorded feature contract
-and the response names what was missing and what was expected.
-"""
-
 from __future__ import annotations
 
 import io
 import json
 import os
+import re
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any
@@ -47,13 +18,8 @@ from fastapi.templating import Jinja2Templates
 from energipredict import __version__, config as cfg
 from energipredict.serve import InvalidUpload, load_artefact, predict_frame
 
-#: Largest upload accepted. Three years of hourly data is about 26 000 rows, well
-#: under this; the cap exists to bound memory, not to restrict real use.
 MAX_UPLOAD_BYTES = 25 * 1024 * 1024
 
-#: Rows returned inline in a JSON response. Longer results are still complete in
-#: the CSV download; this only keeps a browser from being handed a 20 MB payload
-#: it will try to render in a table.
 MAX_JSON_ROWS = 2000
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -64,35 +30,44 @@ templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
 
 def _allowed_origins() -> list[str]:
-    """Cross-origin allow-list, from ``ENERGIPREDICT_ALLOWED_ORIGINS``.
-
-    Comma-separated. Defaults to ``*``, which is safe here only because
-    credentials are disabled and every endpoint is public and read-only. Set it
-    explicitly when embedding the results endpoint in another site.
-    """
     raw = os.environ.get("ENERGIPREDICT_ALLOWED_ORIGINS", "*")
     return [origin.strip() for origin in raw.split(",") if origin.strip()]
 
 
-def _load_metrics() -> dict[str, Any]:
-    """Read ``reports/metrics.json``, the single source of every published number.
+def _metrics_unavailable(message: str) -> dict[str, Any]:
+    return {"available": False, "message": message}
 
-    Returns a placeholder rather than raising if the file is absent, so the site
-    still serves before the first training run instead of 500-ing on the landing
-    page.
-    """
+
+def _load_metrics() -> dict[str, Any]:
     if not cfg.METRICS_JSON.exists():
-        return {
-            "available": False,
-            "message": (
-                "No evaluation results yet. Run `python -m energipredict.train` "
-                "to train the models and generate reports/metrics.json."
-            ),
-        }
-    with cfg.METRICS_JSON.open(encoding="utf-8") as fh:
-        payload = json.load(fh)
+        return _metrics_unavailable(
+            "No evaluation results yet. Run `python -m energipredict.train` "
+            "to train the models and generate reports/metrics.json."
+        )
+
+    try:
+        with cfg.METRICS_JSON.open(encoding="utf-8") as fh:
+            payload = json.load(fh)
+    except (OSError, json.JSONDecodeError) as exc:
+        return _metrics_unavailable(
+            "Evaluation results are unavailable because reports/metrics.json "
+            f"could not be read ({exc}). Run `python -m energipredict.train` to regenerate it."
+        )
+
+    if not isinstance(payload, dict):
+        return _metrics_unavailable(
+            "Evaluation results are unavailable because reports/metrics.json "
+            "does not contain a JSON object. Run `python -m energipredict.train` to regenerate it."
+        )
+
     payload["available"] = True
     return payload
+
+
+def _download_stem(filename: str | None) -> str:
+    stem = Path(filename or "").stem
+    stem = re.sub(r"[^A-Za-z0-9._-]+", "-", stem).strip(".-_")
+    return stem or "forecast"
 
 
 STATE: dict[str, Any] = {"metrics": {}, "artefact": None, "artefact_error": None}
@@ -100,14 +75,6 @@ STATE: dict[str, Any] = {"metrics": {}, "artefact": None, "artefact_error": None
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Warm the model and metrics once, at startup.
-
-    The old handler called ``joblib.load`` inside the request, so every upload
-    paid the deserialisation cost of a stacking ensemble and a corrupt or absent
-    model file only revealed itself on first use. Loading here surfaces the
-    problem at boot -- but does not abort it, because the results and landing
-    pages are worth serving even when no model has been trained yet.
-    """
     STATE["metrics"] = _load_metrics()
     try:
         STATE["artefact"] = load_artefact()
@@ -138,7 +105,6 @@ if STATIC_DIR.exists():
 
 
 def _artefact_or_503():
-    """Return the loaded model, or explain how to produce one."""
     if STATE.get("artefact") is None:
         raise HTTPException(
             status_code=503,
@@ -151,9 +117,7 @@ def _artefact_or_503():
     return STATE["artefact"]
 
 
-# --------------------------------------------------------------------------
 # Pages
-# --------------------------------------------------------------------------
 def _page_context(request: Request) -> dict[str, Any]:
     metrics = STATE.get("metrics") or {}
     artefact = STATE.get("artefact")
@@ -195,9 +159,7 @@ async def method_page(request: Request):
     return templates.TemplateResponse(request, "method.html", _page_context(request))
 
 
-# --------------------------------------------------------------------------
 # JSON API
-# --------------------------------------------------------------------------
 @app.get("/health")
 async def health():
     """Liveness, plus whether a model is actually loaded."""
@@ -305,23 +267,13 @@ async def api_predict(
     file: UploadFile = File(..., description="Hourly CSV history; see /api/model"),
     format: str = Query("json", pattern="^(json|csv)$"),
 ):
-    """Forecast every hour in an uploaded history that has enough context.
-
-    The upload is a *history*, not a list of independent rows: the model uses
-    recent consumption, so predicting an hour requires the hours before it. See
-    :mod:`energipredict.serve` for the required columns, or ``GET /api/model``.
-
-    ``format=csv`` streams the results as a download; ``json`` returns them
-    inline together with a summary of what was and was not predictable.
-    """
+    """Forecast every hour in an uploaded history that has enough context."""
     artefact = _artefact_or_503()
     frame = _parse_csv(await _read_upload(file))
 
     try:
         predictions, summary = predict_frame(frame, artefact)
     except InvalidUpload as exc:
-        # A bad upload is the caller's to fix, so it gets 422 and an explanation
-        # rather than the old blanket 500.
         raise HTTPException(
             status_code=422, detail={"error": exc.message, **exc.detail}
         ) from exc
@@ -331,7 +283,7 @@ async def api_predict(
     if format == "csv":
         buffer = io.StringIO()
         predictions.to_csv(buffer)
-        stem = Path(file.filename or "upload").stem
+        stem = _download_stem(file.filename)
         return Response(
             content=buffer.getvalue(),
             media_type="text/csv",
