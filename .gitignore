@@ -1,1 +1,23 @@
+# Original raw data drop (superseded by data.csv)
 Building_59/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Environments
+venv/
+.venv/
+env/
+
+# Notebooks
+.ipynb_checkpoints/
+
+# Prediction output written per-request by the app
+outputs/
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,17 @@
+# EnergiPredict — development extras
+#
+# Everything needed to re-run Model-development.ipynb and regenerate the
+# figures. Install on top of requirements.txt:
+#   pip install -r requirements.txt -r requirements-dev.txt
+
+-r requirements.txt
+
+# --- notebook ---
+jupyterlab>=4.2
+ipykernel>=6.29
+nbformat>=5.10
+nbclient>=0.10               # used to execute the notebook headlessly
+
+# --- figures ---
+matplotlib>=3.9
+seaborn>=0.13
